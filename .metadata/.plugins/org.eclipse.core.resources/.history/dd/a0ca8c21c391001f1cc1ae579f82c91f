@@ -1,0 +1,22 @@
+package com.cibertec.services;
+
+public class PacienteService {
+
+	@Service
+	public class PacienteService {
+
+	    private final PacienteRepository pacienteRepository;
+
+	    public PacienteService(PacienteRepository pacienteRepository) {
+	        this.pacienteRepository = pacienteRepository;
+	    }
+
+	    public Paciente registrarPaciente(Paciente paciente) {
+	        return pacienteRepository.save(paciente);
+	    }
+
+	    public List<Paciente> listarPacientes() {
+	        return pacienteRepository.findAll();
+	    }
+	}
+}

@@ -1,0 +1,26 @@
+package com.cibertec.services;
+
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+import com.cibertec.model.Paciente;
+import com.cibertec.repository.IPacienteRepository;
+
+@Service
+public class PacienteService {
+
+    private final IPacienteRepository pacienteRepository;
+
+    public PacienteService(IPacienteRepository pacienteRepository) {
+        this.pacienteRepository = pacienteRepository;
+    }
+
+    public Paciente registrarPaciente(Paciente paciente) {
+        return pacienteRepository.save(paciente);
+    }
+
+    public List<Paciente> listarPacientes() {
+        return pacienteRepository.findAll();
+    }
+}

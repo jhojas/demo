@@ -1,0 +1,43 @@
+package com.cibertec.controller;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.ui.Model;
+import com.cibertec.model.Paciente;
+import com.cibertec.services.PacienteService;
+
+
+
+public class ClinicaController {
+	@Controller
+	@RequestMapping("/pacientes")
+	public class PacienteController {
+
+	    private final PacienteService pacienteService;
+
+	    public PacienteController(PacienteService pacienteService) {
+	        this.pacienteService = pacienteService;
+	    }
+
+	    @GetMapping("/nuevo")
+	    public String mostrarFormularioRegistro(Model model) {
+	        model.addAttribute("paciente", new Paciente());
+	        return "registroPaciente";
+	    }
+
+	    @PostMapping("/guardar")
+	    public String registrarPaciente(@ModelAttribute Paciente paciente) {
+	        pacienteService.registrarPaciente(paciente);
+	        return "redirect:/pacientes/lista";
+	    }
+
+	    @GetMapping("/lista")
+	    public String listarPacientes(Model model) {
+	        model.addAttribute("pacientes", pacienteService.listarPacientes());
+	        return "listaPacientes";
+	    }
+	}
+}

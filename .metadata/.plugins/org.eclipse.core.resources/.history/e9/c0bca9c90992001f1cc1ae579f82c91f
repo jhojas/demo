@@ -1,0 +1,72 @@
+package com.cibertec.controller;
+
+import java.time.LocalDate;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+
+import com.cibertec.model.Atencion;
+import com.cibertec.model.Paciente;
+import com.cibertec.services.AtencionService;
+import com.cibertec.services.PacienteService;
+
+@Controller
+public class ClinicaController {
+
+    @Autowired
+    private PacienteService pacienteService;
+
+    @Autowired
+    private AtencionService atencionService;
+
+    // Registro de un nuevo paciente
+    @GetMapping("/pacientes/registrar")
+    public String registerPaciente(Model model) {
+        Paciente paciente = new Paciente();
+        paciente.setNombre("Juan Pérez");
+        paciente.setDireccion("Callao 123");
+        paciente.setTelefono("123456789");
+        paciente.setCorreo("juan.perez@mail.com");
+
+        paciente = pacienteService.registrarPaciente(paciente);
+
+        model.addAttribute("paciente", paciente);
+
+        return "registropaciente"; // Asegúrate de tener la vista "registropaciente.html"
+    }
+
+    // Listar todos los pacientes
+    @GetMapping("/pacientes/listar")
+    public String listPacientes(Model model) {
+        model.addAttribute("lstPacientes", pacienteService.listarPacientes());
+        return "listarpacientes"; // Asegúrate de tener la vista "listarpacientes.html"
+    }
+
+    // Registro de una nueva atención
+    @GetMapping("/atenciones/registrar")
+    public String registerAtencion(Model model) {
+        Atencion atencion = new Atencion();
+        atencion.setFecha(LocalDate.now());
+        atencion.setDiagnostico("Caries en molar derecho");
+        atencion.setMedico("Dr. García");
+
+        // Asociar atención a un paciente (supone que el paciente con ID 1 existe)
+        Paciente paciente = pacienteService.buscarPorId(1L);
+        atencion.setPaciente(paciente);
+
+        atencion = atencionService.registrarAtencion(atencion);
+
+        model.addAttribute("atencion", atencion);
+
+        return "registroAtencion"; // Asegúrate de tener la vista "registroAtencion.html"
+    }
+
+    // Listar todas las atenciones
+    @GetMapping("/atenciones/listar")
+    public String listAtenciones(Model model) {
+        model.addAttribute("lstAtenciones", atencionService.listarAtenciones());
+        return "listaAtenciones"; // Asegúrate de tener la vista "listaAtenciones.html"
+    }
+}

@@ -1,0 +1,69 @@
+package com.cibertec.controller;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import com.cibertec.model.Atencion;
+import com.cibertec.model.Paciente;
+
+import com.cibertec.services.AtencionService;
+import com.cibertec.services.PacienteService;
+import org.springframework.ui.Model;
+
+
+@Controller
+public class ClinicaController {
+		
+	@RequestMapping("/gestion")
+	public class GestionController {
+
+	    private final PacienteService pacienteService;
+	    private final AtencionService atencionService;
+
+	    public GestionController(PacienteService pacienteService, AtencionService atencionService) {
+	        this.pacienteService = pacienteService;
+	        this.atencionService = atencionService;
+	    }
+
+	    // Gestión de Pacientes
+	    @GetMapping("/pacientes/nuevo")
+	    public String mostrarFormularioRegistroPaciente(Model model) {
+	        model.addAttribute("paciente", new Paciente());
+	        return "registropaciente";
+	    }
+
+	    @PostMapping("/pacientes/guardar")
+	    public String registrarPaciente(@ModelAttribute Paciente paciente) {
+	        pacienteService.registrarPaciente(paciente);
+	        return "redirect:/gestion/pacientes/lista";
+	    }
+
+	    @GetMapping("/listarpacientes")
+	    public String listarPacientes(Model model) {
+	        model.addAttribute("pacientes", pacienteService.listarPacientes());
+	        return "listarpacientes";
+	    }
+
+	    // Gestión de Atenciones
+	    @GetMapping("/atenciones/nuevo")
+	    public String mostrarFormularioRegistroAtencion(Model model) {
+	        model.addAttribute("atencion", new Atencion());
+	        return "registroAtencion";
+	    }
+
+	    @PostMapping("/atenciones/guardar")
+	    public String registrarAtencion(@ModelAttribute Atencion atencion) {
+	        atencionService.registrarAtencion(atencion);
+	        return "redirect:/gestion/atenciones/lista";
+	    }
+
+	    @GetMapping("/atenciones/lista")
+	    public String listarAtenciones(Model model) {
+	        model.addAttribute("atenciones", atencionService.listarAtenciones());
+	        return "listaAtenciones";
+	    }
+	}
+}

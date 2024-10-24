@@ -1,0 +1,101 @@
+package com.cibertec.controller;
+
+import java.io.InputStream;
+import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+
+import com.cibertec.model.Atencion;
+import com.cibertec.model.Paciente;
+import com.cibertec.services.AtencionService;
+import com.cibertec.services.PacienteService;
+import net.sf.jasperreports.engine.JasperExportManager;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+
+
+@Controller
+public class ClinicaController {
+
+    @Autowired
+    private PacienteService pacienteService;
+
+    @Autowired
+    private AtencionService atencionService;
+
+    // Registro de un nuevo paciente
+    @GetMapping("/pacientes/registrar")
+    public String registerPaciente(Model model) {
+        Paciente paciente = new Paciente();
+        paciente.setNombre("Juan Valdez");
+        paciente.setDireccion("Calle marina 423");
+        paciente.setTelefono("555-1234");
+        paciente.setCorreo("juan.perez@gmail.com");
+
+        paciente = pacienteService.registrarPaciente(paciente);
+
+        // Generar PDF después del registro
+        try {
+            generarConstanciaPDF(paciente);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        model.addAttribute("paciente", paciente);
+
+        return "registropaciente"; 
+    }
+
+    private void generarConstanciaPDF(Paciente paciente) throws Exception {
+        // Cargar el archivo Jasper
+        InputStream jasperStream = this.getClass().getResourceAsStream("/constanciaNombre.jasper");
+
+        // Parámetros para el reporte
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("nombre", paciente.getNombre());
+        parameters.put("telefono", paciente.getTelefono());
+        // Agrega otros parámetros necesarios
+
+        // Generar el reporte
+        JasperPrint jasperPrint = JasperFillManager.fillReport(jasperStream, parameters, new JREmptyDataSource());
+
+        // Exportar a PDF
+        String rutaPDF = "ruta/a/guardar/constancia-" + paciente.getNombre() + ".pdf";
+        JasperExportManager.exportReportToPdfFile(jasperPrint, rutaPDF);
+    }
+
+    // Listar todos los pacientes
+    @GetMapping("/pacientes/listar")
+    public String listPacientes(Model model) {
+        model.addAttribute("lstPacientes", pacienteService.listarPacientes());
+        return "listarpacientes"; 
+    }
+
+    // Registro de una nueva atención
+    @GetMapping("/atenciones/registrar")
+    public String registerAtencion(Model model) {
+        Atencion atencion = new Atencion();
+        atencion.setFecha(LocalDate.now());
+        atencion.setDiagnostico("Caries en molar derecho");
+        atencion.setMedico("Dr. García");
+        Paciente paciente = pacienteService.buscarPorId(1L);
+        atencion.setPaciente(paciente);
+
+        atencion = atencionService.registrarAtencion(atencion);
+
+        model.addAttribute("atencion", atencion);
+
+        return "registroAtencion"; 
+    }
+
+    @GetMapping("/atenciones/listar")
+    public String listAtenciones(Model model) {
+        model.addAttribute("lstAtenciones", atencionService.listarAtenciones());
+        return "listaAtenciones"; 
+    }
+}

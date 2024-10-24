@@ -1,0 +1,90 @@
+package com.cibertec.controller;
+
+import java.time.LocalDate;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import com.cibertec.model.Atencion;
+import com.cibertec.model.Paciente;
+import com.cibertec.services.AtencionService;
+import com.cibertec.services.PacienteService;
+
+@Controller
+@RequestMapping("/gestion") // Prefijo para todas las rutas
+public class ClinicaController {
+
+    @Autowired
+    private PacienteService pacienteService;
+
+    @Autowired
+    private AtencionService atencionService;
+
+    // Registro de un nuevo paciente (similitud con el registro de Subject)
+    @GetMapping("/pacientes/registrar")
+    public String registerPaciente(Model model) {
+        // Creación de un nuevo Paciente con datos de prueba
+        Paciente paciente = new Paciente();
+        paciente.setNombre("Juan Pérez");
+        paciente.setDireccion("callao 123");
+        paciente.setTelefono("123456789");
+        paciente.setCorreo("juan.perez@mail.com");
+
+        // Guardar el paciente en la base de datos
+        paciente = pacienteService.registrarPaciente(paciente);
+
+        // Agregar el objeto Paciente al modelo para ser mostrado en la vista
+        model.addAttribute("paciente", paciente);
+
+        // Retornar la vista "registropaciente"
+        return "registropaciente"; // Asegúrate de tener la vista registropaciente.html en templates
+    }
+
+    // Listar todos los pacientes (similitud con listar Subjects)
+    @GetMapping("/pacientes/listar")
+    public String listPacientes(Model model) {
+        // Obtener la lista de pacientes y añadirla al modelo
+        model.addAttribute("lstPacientes", pacienteService.listarPacientes());
+
+        // Retornar la vista "listarpacientes"
+        return "listarpacientes"; // Asegúrate de tener la vista listarpacientes.html en templates
+    }
+
+    // Registro de una nueva atención
+    @GetMapping("/atenciones/registrar")
+    public String registerAtencion(Model model) {
+        // Creación de una nueva Atencion con datos de prueba
+        Atencion atencion = new Atencion();
+        atencion.setFecha(LocalDate.now());
+        atencion.setDiagnostico("Diagnóstico de prueba");
+        atencion.setMedico("Dr. García");
+
+        // Asociar atención a un paciente (suponiendo el ID 1 como ejemplo)
+        Paciente paciente = pacienteService.buscarPorId(1L); // Asegúrate de implementar buscarPorId en PacienteService
+        atencion.setPaciente(paciente);
+
+        // Guardar la atención en la base de datos
+        atencion = atencionService.registrarAtencion(atencion);
+
+        // Agregar el objeto Atencion al modelo
+        model.addAttribute("atencion", atencion);
+
+        // Retornar la vista "registroAtencion"
+        return "registroAtencion"; // Asegúrate de tener la vista registroAtencion.html en templates
+    }
+
+    // Listar todas las atenciones
+    @GetMapping("/atenciones/listar")
+    public String listAtenciones(Model model) {
+        // Obtener la lista de atenciones y añadirla al modelo
+        model.addAttribute("lstAtenciones", atencionService.listarAtenciones());
+
+        // Retornar la vista "listaAtenciones"
+        return "listaAtenciones"; // Asegúrate de tener la vista listaAtenciones.html en templates
+    }
+}
